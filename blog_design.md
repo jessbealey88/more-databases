@@ -1,5 +1,3 @@
-
-
 # Two Tables Design Recipe Template
 
 _Copy this recipe template to design and create two related database tables from a specification._
@@ -11,26 +9,30 @@ _Copy this recipe template to design and create two related database tables from
 # (analyse only the relevant part - here the final line).
 
 ```
-As a coach
-So I can get to know all students
-I want to see a list of students' names.
+As a blogger
+So I can write interesting stuff
+I want to write posts having a title.
 
-As a coach
-So I can get to know all students
-I want to see a list of cohorts' names.
+As a blogger
+So I can write interesting stuff
+I want to write posts having a content.
 
-As a coach
-So I can get to know all students
-I want to see a list of cohorts' starting dates.
+As a blogger
+So I can let people comment on interesting stuff
+I want to allow comments on my posts.
 
-As a coach
-So I can get to know all students
-I want to see a list of students' cohorts.
+As a blogger
+So I can let people comment on interesting stuff
+I want the comments to have a content.
+
+As a blogger
+So I can let people comment on interesting stuff
+I want the author to include their name in comments.
 
 ```
 Nouns:
 
-students names, cohort names, cohort start date, 
+blog posts, post content, post comments, comment content, comment author
 ```
 
 ## 2. Infer the Table Name and Columns
@@ -39,16 +41,16 @@ Put the different nouns in this table. Replace the example with your own nouns.
 
 | Record                | Properties          |
 | --------------------- | ------------------  |
-| students              | name
-| cohorts               | name, starting_date
+| blog_posts            | title, contents,    |
+| comments              | author, contents    |
 
-1. Name of the first table (always plural): `students` 
+1. Name of the first table (always plural): `blog_posts` 
 
-    Column names: `name`
+    Column names: `title`, `contents`
 
-2. Name of the second table (always plural): `cohorts` 
+2. Name of the second table (always plural): `comments` 
 
-    Column names: `name`, `starting_date`
+    Column names: `author`, `contents`
 
 ## 3. Decide the column types.
 
@@ -61,15 +63,16 @@ Remember to **always** have the primary key `id` as a first column. Its type wil
 ```
 # EXAMPLE:
 
-Table: students
+Table: blog_posts
 id: SERIAL
-name: text
+title: text
+contents: text
 
 
-Table: cohorts
-id: SERIAL
-name: text
-starting_date: date
+Table: comments
+author: text
+contents: text
+
 ```
 
 ## 4. Decide on The Tables Relationship
@@ -92,14 +95,14 @@ Replace the relevant bits in this example with your own:
 ```
 # EXAMPLE
 
-1. Can a student have many cohorts? NO
-2. Can  a cohort have many students? YES
+1. Can a blog_post have many comments? YES
+2. Can  a comment have many blog_posts? NO
 
 -> Therefore,
--> A cohort HAS MANY students
--> A student BELONGS TO a cohort
+-> A blog_post HAS MANY comments
+-> A comment BELONGS TO a blog_post
 
--> Therefore, the foreign key is on students (cohort_id)
+-> Therefore, the foreign key is on comments (blog_post id)
 ```
 
 *If you can answer YES to the two questions, you'll probably have to implement a Many-to-Many relationship, which is more complex and needs a third table (called a join table).*
@@ -113,20 +116,21 @@ Replace the relevant bits in this example with your own:
 -- Replace the table name, columm names and types.
 
 -- Create the table without the foreign key first.
-CREATE TABLE cohorts (
+CREATE TABLE blog_posts (
   id SERIAL PRIMARY KEY,
-  name text
-  starting_date date
+  title text,
+  contents text
 );
 
 -- Then the table with the foreign key first.
-CREATE TABLE students (
+CREATE TABLE comments (
   id SERIAL PRIMARY KEY,
-  name text,
+  author text,
+  contents text,
 -- The foreign key name is always {other_table_singular}_id
-  cohort_id int,
-  constraint fk_cohort foreign key(cohort_id)
-    references cohorts(id)
+  blog_post_id int,
+  constraint fk_blog_post foreign key(blog_post_id)
+    references blog_posts(id)
     on delete cascade
 );
 
@@ -135,7 +139,7 @@ CREATE TABLE students (
 ## 5. Create the tables.
 
 ```bash
-psql -h 127.0.0.1 student_directory_2 < students_table2.sql
+psql -h 127.0.0.1 blog < blog_posts.sql
 ```
 
 
